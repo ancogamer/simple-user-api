@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>models: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">app/models/errors.go (100.0%)</option>
+				
+				<option value="file1">app/services/user/create.go (90.0%)</option>
+				
+				<option value="file2">app/services/user/delete.go (100.0%)</option>
+				
+				<option value="file3">app/services/user/get.go (58.3%)</option>
+				
+				<option value="file4">app/services/user/patch.go (97.7%)</option>
+				
+				<option value="file5">app/utils/str.go (0.0%)</option>
+				
+				<option value="file6">app/utils/uuid.go (50.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package models
+
+import (
+        "strconv"
+        "strings"
+)
+
+type Error struct {
+        HTTPCode int
+        Msg      string
+}
+
+func NewErr(code int, msg string) (err error) <span class="cov10" title="21">{
+        return &amp;Error{
+                HTTPCode: code,
+                Msg:      msg,
+        }
+}</span>
+
+func (e *Error) Error() string <span class="cov10" title="21">{
+        return strings.Join([]string{strconv.Itoa(e.HTTPCode), ":", e.Msg}, "")
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package services
+
+import (
+        "app/models"
+        "context"
+)
+
+// Create creates a user in the DB
+func (svc *UserSVC) Create(ctx context.Context, in models.UserReq) (out models.User, err error) <span class="cov1" title="1">{
+        err = validateCreate(in)
+        if err != nil </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov1" title="1">out.LastName = &amp;in.LastName
+        if in.LastName == "" </span><span class="cov0" title="0">{
+                out.LastName = nil
+        }</span>
+
+        //out.ID = uuid.New().String() // i know, but since the mock will complain and i dont want to make my own mock logic
+        <span class="cov1" title="1">out.ID = svc.UUIDInterface.NewString() // lets inject this (complexy++)
+        out.Name = in.Name
+        out.Age = in.Age
+
+        err = svc.RepoInterface.Create(ctx, out)
+        if err != nil </span><span class="cov0" title="0">{
+                return models.User{}, err
+        }</span>
+
+        <span class="cov1" title="1">return</span>
+}
+
+func validateCreate(in models.UserReq) (err error) <span class="cov10" title="8">{
+        if in.Name == "" </span><span class="cov1" title="1">{
+                err = models.NewErr(400, "invalid_name")
+                return
+        }</span>
+
+        <span class="cov9" title="7">if len([]rune(in.Name)) &lt; 3 </span><span class="cov1" title="1">{
+                err = models.NewErr(400, "invalid_name")
+                return
+        }</span>
+
+        <span class="cov8" title="6">if len([]rune(in.Name)) &gt; 50 </span><span class="cov1" title="1">{
+                err = models.NewErr(400, "invalid_name")
+                return
+        }</span>
+
+        <span class="cov7" title="5">if in.Age &lt;= 0 </span><span class="cov4" title="2">{
+                err = models.NewErr(400, "invalid_age")
+                return
+        }</span>
+
+        <span class="cov5" title="3">if in.LastName != "" </span><span class="cov5" title="3">{
+                if len([]rune(in.LastName)) &gt; 50 </span><span class="cov1" title="1">{
+                        err = models.NewErr(400, "invalid_last_name")
+                        return
+                }</span>
+        }
+        <span class="cov4" title="2">return</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package services
+
+import (
+        "app/models"
+        "context"
+        "log"
+)
+
+// Delete deles a user
+func (svc *UserSVC) Delete(ctx context.Context, id string) (err error) <span class="cov10" title="5">{
+
+        err = svc.UUIDInterface.IsValid(id)
+        if err != nil </span><span class="cov1" title="1">{
+                return models.NewErr(400, "invalid_id")
+        }</span>
+        // we could also check by db constraints, and since i love postgres
+        // i would do that
+
+        <span class="cov8" title="4">ok, err := svc.RepoInterface.ExistID(ctx, id)
+        if err != nil </span><span class="cov1" title="1">{
+                log.Default().Print("delete user err: ", err) // not the fast log out there, but will do the work for now
+                return models.NewErr(500, "something_went_wrong")
+        }</span>
+        <span class="cov7" title="3">if !ok </span><span class="cov1" title="1">{
+                return models.NewErr(404, "id_not_found")
+        }</span>
+
+        <span class="cov4" title="2">err = svc.RepoInterface.Delete(ctx, id)
+        if err != nil </span><span class="cov1" title="1">{
+                log.Default().Print("delete user err: ", err) // not the fast log out there, but will do the work for now
+                return models.NewErr(500, "something_went_wrong")
+        }</span>
+
+        <span class="cov1" title="1">return</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package services
+
+import (
+        "app/models"
+        "context"
+        "log"
+)
+
+// Get Gets a user
+func (svc *UserSVC) Get(ctx context.Context, id string) (out models.UserResp, err error) <span class="cov10" title="2">{
+        err = svc.UUIDInterface.IsValid(id)
+        if err != nil </span><span class="cov1" title="1">{
+                return models.UserResp{}, models.NewErr(400, "invalid_id")
+        }</span>
+
+        <span class="cov1" title="1">user, err := svc.RepoInterface.Get(ctx, id)
+        if err != nil </span><span class="cov1" title="1">{
+                // only logs the error and return a empty struct for user, since we need to know what happen, but the user dont
+                // and this is a get, so we cover the 'not found' problem without checking if the record exist, saving 1 call
+                log.Default().Print("get user err: ", err) // not the fast log out there, but will do the work for now
+                return models.UserResp{}, nil
+        }</span>
+        <span class="cov0" title="0">out.ID = user.ID
+        out.Name = user.Name
+        out.LastName = user.LastName
+        out.Age = user.Age
+        return</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package services
+
+import (
+        "app/models"
+        "context"
+        "log"
+)
+
+// Patch patchs a expecific field of user
+func (svc *UserSVC) Patch(ctx context.Context, in models.UserReq, id string) (err error) <span class="cov8" title="6">{
+
+        err = svc.UUIDInterface.IsValid(id)
+        if err != nil </span><span class="cov1" title="1">{
+                return models.NewErr(400, "invalid_id")
+        }</span>
+        // validating new fields info, for now since this op dont go outside
+        // it comes first than repo ones
+        <span class="cov7" title="5">err = validateUpdate(in)
+        if err != nil </span><span class="cov1" title="1">{
+                return
+        }</span>
+
+        // we could also check by db constraints, and since i love postgres,
+        // i would do that
+        <span class="cov6" title="4">ok, err := svc.RepoInterface.ExistID(ctx, id)
+        if err != nil </span><span class="cov1" title="1">{
+                log.Default().Print("patch user err: ", err) // not the fast log out there, but will do the work for now
+                return models.NewErr(500, "something_went_wrong")
+        }</span>
+        <span class="cov5" title="3">if !ok </span><span class="cov1" title="1">{
+                return models.NewErr(404, "id_not_found")
+        }</span>
+        <span class="cov3" title="2">user := models.User{
+                ID:       id,
+                Name:     in.Name,
+                LastName: &amp;in.LastName,
+                Age:      in.Age,
+        }
+        if in.LastName == "" </span><span class="cov3" title="2">{
+                user.LastName = nil
+        }</span>
+
+        <span class="cov3" title="2">err = svc.RepoInterface.Patch(ctx, user)
+        if err != nil </span><span class="cov1" title="1">{
+                log.Default().Print("patch user err: ", err) // not the fast log out there, but will do the work for now
+                return models.NewErr(500, "something_went_wrong")
+        }</span>
+
+        <span class="cov1" title="1">return</span>
+}
+
+func validateUpdate(in models.UserReq) (err error) <span class="cov10" title="10">{
+        okUpdate := false
+        if in.Name != "" </span><span class="cov9" title="8">{
+
+                if len([]rune(in.Name)) &lt; 3 </span><span class="cov1" title="1">{
+                        err = models.NewErr(400, "invalid_name")
+                        return
+                }</span>
+
+                <span class="cov8" title="7">if len([]rune(in.Name)) &gt; 50 </span><span class="cov1" title="1">{
+                        err = models.NewErr(400, "invalid_name")
+                        return
+                }</span>
+                <span class="cov8" title="6">okUpdate = true</span>
+        }
+
+        <span class="cov9" title="8">if in.LastName != "" </span><span class="cov3" title="2">{
+                if len([]rune(in.LastName)) &gt; 50 </span><span class="cov1" title="1">{
+                        err = models.NewErr(400, "invalid_last_name")
+                        return
+                }</span>
+                <span class="cov1" title="1">okUpdate = true</span>
+        }
+
+        <span class="cov8" title="7">if in.Age != 0 </span><span class="cov1" title="1">{
+                if in.Age &lt; 0 </span><span class="cov1" title="1">{
+                        err = models.NewErr(400, "invalid_age")
+                        return
+                }</span>
+                <span class="cov0" title="0">okUpdate = true</span>
+        }
+
+        <span class="cov8" title="6">if !okUpdate </span><span class="cov3" title="2">{
+                err = models.NewErr(400, "nothing_to_update")
+                return
+        }</span>
+
+        <span class="cov6" title="4">return</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package utils
+
+func StringToPointer(str string) *string <span class="cov0" title="0">{
+        return &amp;str
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package utils
+
+import "github.com/google/uuid"
+
+type UUIDSvc struct{}
+
+// NewString generates a new uuid as str, this is a mustDo or panic
+func (svc *UUIDSvc) NewString() (str string) <span class="cov0" title="0">{
+        return uuid.New().String()
+}</span>
+
+// IsValid checks if the str is a valid uuid
+func (svc *UUIDSvc) IsValid(str string) (err error) <span class="cov10" title="2">{
+        return uuid.Validate(str)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
