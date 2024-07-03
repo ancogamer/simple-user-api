@@ -7,10 +7,11 @@ type UserReq struct {
 }
 
 type User struct {
-	ID       string
-	Name     string
-	LastName *string
-	Age      int
+	AccountID string
+	ID        string
+	Name      string
+	LastName  *string
+	Age       int
 }
 
 type UserResp struct {

@@ -1,8 +1,17 @@
 DROP TABLE IF EXISTS address; 
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS account; 
+
+CREATE TABLE account (
+    ID UUID                             NOT NULL PRIMARY KEY,
+    User     VARCHAR(10)                NOT NULL UNIQUE,
+    Pas      VARCHAR(100)               NULL,
+    Salt     VARCHAR(100)               NULL
+);
 
 
 CREATE TABLE users (
+    ACCOUNT_ID  UUID references account(id)  NOT NULL,
     ID          UUID            NOT NULL PRIMARY KEY,
     NAME        VARCHAR(50)     NOT NULL,
     LAST_NAME    VARCHAR(100)   NULL,
@@ -20,3 +29,4 @@ CREATE TABLE address (
     COUNTRY  VARCHAR(100)               NULL,
     CITY     VARCHAR(100)               NULL
 );
+
